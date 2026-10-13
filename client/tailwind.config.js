@@ -1,0 +1,101 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,jsx}'],
+  darkMode: 'class',
+  theme: {
+    screens: {
+      sm:  '480px',
+      md:  '768px',
+      lg:  '1024px',
+      xl:  '1280px',
+      '2xl': '1536px',
+    },
+    extend: {
+      colors: {
+        bg:      '#FFFFFF',
+        surface: '#F8FAFC',
+        'surface-2': '#F1F4F9',
+        border:  '#E2E8F0',
+        'text-primary':   '#0A0A1A',
+        'text-secondary': '#4A5568',
+        'text-muted':     '#94A3B8',
+        blue: {
+          DEFAULT: '#00A6FF',
+          hover:   '#0090e0',
+          soft:    '#e6f6ff',
+          mid:     '#b3e4ff',
+        },
+        cyan: {
+          DEFAULT: '#00E5FF',
+          soft:    '#e0fbff',
+        },
+        purple: {
+          DEFAULT: '#A020F0',
+          hover:   '#8a18cc',
+          soft:    '#f3e6fd',
+          mid:     '#d9a8f8',
+        },
+        // keep primary alias pointing to blue
+        primary: {
+          DEFAULT: '#00A6FF',
+          hover:   '#0090e0',
+          soft:    '#e6f6ff',
+        },
+        success: { DEFAULT: '#10B981', soft: '#ECFDF5', border: '#6EE7B7' },
+        warning: { DEFAULT: '#F59E0B', soft: '#FFFBEB', border: '#FDE68A' },
+        danger:  { DEFAULT: '#EF4444', soft: '#FEF2F2', border: '#FECACA' },
+        info:    { DEFAULT: '#00A6FF', soft: '#e6f6ff', border: '#b3e4ff' },
+      },
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+      },
+      fontSize: {
+        '2xs': ['11px', { lineHeight: '16px' }],
+        xs:    ['12px', { lineHeight: '16px' }],
+        sm:    ['13px', { lineHeight: '18px' }],
+        base:  ['14px', { lineHeight: '20px' }],
+        md:    ['16px', { lineHeight: '24px' }],
+        lg:    ['20px', { lineHeight: '28px' }],
+        xl:    ['24px', { lineHeight: '32px' }],
+        '2xl': ['32px', { lineHeight: '40px' }],
+      },
+      borderRadius: {
+        DEFAULT: '8px',
+        sm:  '6px',
+        md:  '8px',
+        lg:  '12px',
+        xl:  '16px',
+        '2xl': '20px',
+        full: '9999px',
+      },
+      boxShadow: {
+        xs:       '0 1px 2px rgba(0,0,0,0.04)',
+        sm:       '0 1px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+        md:       '0 4px 16px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04)',
+        lg:       '0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.05)',
+        modal:    '0 20px 60px rgba(0,0,0,0.15), 0 4px 16px rgba(0,0,0,0.08)',
+        dropdown: '0 8px 24px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06)',
+        blue:     '0 4px 20px rgba(0,166,255,0.25)',
+        purple:   '0 4px 20px rgba(160,32,240,0.25)',
+        none:     'none',
+      },
+      animation: {
+        'fade-in':   'fadeIn 0.15s ease-out',
+        'scale-in':  'scaleIn 0.15s ease-out',
+        'slide-up':  'slideUp 0.18s ease-out',
+        'skeleton':  'skeleton-shimmer 1.6s ease-in-out infinite',
+      },
+      keyframes: {
+        fadeIn:  { from: { opacity: 0 }, to: { opacity: 1 } },
+        scaleIn: { from: { opacity: 0, transform: 'scale(0.96)' }, to: { opacity: 1, transform: 'scale(1)' } },
+        slideUp: { from: { opacity: 0, transform: 'translateY(8px)' }, to: { opacity: 1, transform: 'translateY(0)' } },
+        'skeleton-shimmer': {
+          '0%':   { backgroundPosition: '200% 0' },
+          '100%': { backgroundPosition: '-200% 0' },
+        },
+      },
+    },
+  },
+  plugins: [],
+};

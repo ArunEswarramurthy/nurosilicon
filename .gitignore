@@ -1,0 +1,53 @@
+node_modules/
+client/node_modules/
+server/node_modules/
+client/dist/
+.env
+.env.production
+client/.env
+server/.env
+
+# Deployment secrets
+deploy/certbot/conf/
+deploy/backups/*.sql.gz
+
+# Logs
+*.log
+logs/
+server/*.log
+server/server*.log
+
+# Temp token files — never commit tokens
+tmp_token.txt
+*.token
+*.secret
+
+# Uploaded user files — never commit
+server/uploads/profile-photos/*
+server/uploads/project-images/*
+server/uploads/reference-images/*
+!server/uploads/profile-photos/.gitkeep
+!server/uploads/project-images/.gitkeep
+!server/uploads/reference-images/.gitkeep
+
+# Coverage reports
+server/coverage/
+client/playwright-report/
+client/test-results/
+
+# One-off seed / migration scripts (run manually, not part of source)
+server/seed_*.js
+server/run_*.js
+server/fix-*.js
+server/truth_table_check.js
+
+# Scratch / review files
+gen.js
+write_lab.js
+*.txt
+!deploy/**/*.txt
+!server/API_CONTRACTS.md
+
+# Uploaded lesson images
+server/uploads/lesson-images/*
+!server/uploads/lesson-images/.gitkeep

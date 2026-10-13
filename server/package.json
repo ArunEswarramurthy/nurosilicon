@@ -1,0 +1,72 @@
+{
+  "name": "crackflow-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --ignore uploads/ --ignore '*.log' --ext js index.js",
+    "start": "node index.js",
+    "lint": "eslint src index.js",
+    "lint:fix": "eslint src index.js --fix",
+    "format": "prettier --write .",
+    "db:migrate": "sequelize-cli db:migrate",
+    "db:migrate:status": "sequelize-cli db:migrate:status",
+    "test": "jest --coverage --detectOpenHandles",
+    "test:security": "jest --testPathPatterns=security --detectOpenHandles",
+    "test:all": "jest --coverage --detectOpenHandles --runInBand --forceExit"
+  },
+  "dependencies": {
+    "axios": "^1.19.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.0",
+    "express-rate-limit": "^7.0.0",
+    "google-auth-library": "^11.0.2",
+    "helmet": "^7.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.0.0",
+    "nanoid": "^3.3.16",
+    "nodemailer": "^10.1.0",
+    "sequelize": "^6.0.0",
+    "sequelize-cli": "^6.6.0",
+    "socket.io": "^4.0.0",
+    "uuid": "^9.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/src/tests/**/*.test.js"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/tests/setup.js"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/tests/**",
+      "!src/migrations/**",
+      "!src/seeders/**"
+    ],
+    "coverageThreshold": {}
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "axe-core": "^4.12.1",
+    "eslint": "^9.0.0",
+    "jest": "^30.4.2",
+    "nodemon": "^3.0.0",
+    "pixelmatch": "^7.2.0",
+    "playwright": "^1.62.1",
+    "pngjs": "^7.0.0",
+    "prettier": "^3.0.0",
+    "sharp": "^0.35.3",
+    "supertest": "^7.0.0"
+  }
+}

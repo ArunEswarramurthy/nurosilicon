@@ -1,0 +1,198 @@
+# ============================================================================
+# CRACKFLOW - Docker Compose Production Configuration
+# One-command deployment: docker-compose up -d
+# ============================================================================
+
+version: '3.8'
+
+services:
+  # ==========================================================================
+  # NGINX REVERSE PROXY WITH SSL
+  # ==========================================================================
+  nginx:
+    image: nginx:alpine
+    container_name: crackflow-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./deploy/certbot/conf:/etc/letsencrypt:ro
+      - ./deploy/certbot/www:/var/www/certbot:ro
+    depends_on:
+      - client
+      - server
+    networks:
+      - crackflow-network
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==========================================================================
+  # CERTBOT FOR SSL CERTIFICATES
+  # ==========================================================================
+  certbot:
+    image: certbot/certbot
+    container_name: crackflow-certbot
+    volumes:
+      - ./deploy/certbot/conf:/etc/letsencrypt
+      - ./deploy/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      - crackflow-network
+
+  # ==========================================================================
+  # CLIENT (REACT SPA)
+  # ==========================================================================
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=/api
+        - VITE_WS_URL=${WS_URL:-wss://localhost}
+    container_name: crackflow-client
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks:
+      - crackflow-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==========================================================================
+  # SERVER (EXPRESS API)
+  # ==========================================================================
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: crackflow-server
+    restart: unless-stopped
+    expose:
+      - "5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=${DB_NAME:?Set DB_NAME}
+      - DB_USER=${DB_USER:?Set DB_USER}
+      - DB_PASS=${DB_PASSWORD:?Set DB_PASSWORD}
+      - DB_PASSWORD=${DB_PASSWORD:?Set DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET:?Set JWT_SECRET}
+      - SANDBOX_MODE=judge0
+      - JUDGE0_URL=${JUDGE0_URL:?Set JUDGE0_URL to the HTTPS isolated execution service}
+      - JUDGE0_API_KEY=${JUDGE0_API_KEY:-}
+      - REDIS_URL=redis://redis:6379
+      - CLIENT_URL=${CLIENT_URL:-https://localhost}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - crackflow-network
+    volumes:
+      - server-uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==========================================================================
+  # MYSQL DATABASE
+  # ==========================================================================
+  mysql:
+    image: mysql:8.0
+    container_name: crackflow-mysql
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME:?Set DB_NAME}
+      - MYSQL_USER=${DB_USER:?Set DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD:?Set DB_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./deploy/mysql/init:/docker-entrypoint-initdb.d:ro
+      - ./deploy/mysql/conf.d:/etc/mysql/conf.d:ro
+    networks:
+      - crackflow-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    command: --default-authentication-plugin=mysql_native_password
+
+  # ==========================================================================
+  # REDIS (QUEUE & CACHE)
+  # ==========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: crackflow-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    networks:
+      - crackflow-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==========================================================================
+  # DATABASE BACKUP SERVICE (Daily at 2 AM)
+  # ==========================================================================
+  backup:
+    image: mysql:8.0
+    container_name: crackflow-backup
+    restart: unless-stopped
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_DATABASE=${DB_NAME:?Set DB_NAME}
+      - MYSQL_USER=${DB_USER:?Set DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD:?Set DB_PASSWORD}
+      - BACKUP_RETENTION_DAYS=30
+    volumes:
+      - ./deploy/backups:/backups
+      - ./deploy/scripts/backup.sh:/backup.sh:ro
+      - ./deploy/scripts/backup-cron:/etc/crontabs/root:ro
+    entrypoint: ["/bin/sh", "-c", "chmod +x /backup.sh && crond -f -l 2"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - crackflow-network
+
+# ==========================================================================
+# NETWORKS
+# ==========================================================================
+networks:
+  crackflow-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+# ==========================================================================
+# VOLUMES
+# ==========================================================================
+volumes:
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local
+  server-uploads:
+    driver: local
