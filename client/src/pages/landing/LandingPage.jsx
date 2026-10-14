@@ -31,18 +31,18 @@ const HOW_STEPS = [
 ];
 
 const COURSES = [
-  { bg: 'linear-gradient(135deg,#0a0f1e,#0d1a35)', tag: 'VLSI',        tagColor: '#00A6FF', tagBg: 'rgba(0,166,255,0.12)',   title: 'Verilog Fundamentals',      desc: 'Digital design from basic gates to FSMs and testbenches. Includes waveform simulation for every exercise.',                    diff: 'Beginner',     diffColor: '#10B981', lessons: '24 lessons' },
-  { bg: 'linear-gradient(135deg,#0a1628,#0d2040)', tag: 'Embedded',    tagColor: '#A855F7', tagBg: 'rgba(168,85,247,0.12)',  title: 'Embedded C Programming',    desc: 'Microcontroller programming, GPIO, timers, UART, and real-time systems on ARM Cortex-M.',                                     diff: 'Intermediate', diffColor: '#F59E0B', lessons: '32 lessons' },
-  { bg: 'linear-gradient(135deg,#0a1a0a,#0d2d0d)', tag: 'Programming', tagColor: '#10B981', tagBg: 'rgba(16,185,129,0.12)',  title: 'Python for Engineers',      desc: 'Data analysis, automation, and signal processing with Python, NumPy, and Matplotlib.',                                        diff: 'Beginner',     diffColor: '#10B981', lessons: '28 lessons' },
-  { bg: 'linear-gradient(135deg,#1a1a0a,#2d2d0d)', tag: 'VLSI',        tagColor: '#00A6FF', tagBg: 'rgba(0,166,255,0.12)',   title: 'SystemVerilog and UVM',     desc: 'Advanced verification methodology. Write constrained-random testbenches and functional coverage.',                             diff: 'Advanced',     diffColor: '#EF4444', lessons: '40 lessons' },
-  { bg: 'linear-gradient(135deg,#1a0a0a,#2d0d0d)', tag: 'Core',        tagColor: '#F59E0B', tagBg: 'rgba(245,158,11,0.12)',  title: 'Digital Electronics',       desc: 'Boolean algebra, combinational and sequential circuits, flip-flops, counters, and decoders.',                                  diff: 'Beginner',     diffColor: '#10B981', lessons: '20 lessons' },
-  { bg: 'linear-gradient(135deg,#0a1a1a,#0d2d2d)', tag: 'Embedded',    tagColor: '#A855F7', tagBg: 'rgba(168,85,247,0.12)',  title: 'ARM Cortex-M Programming',  desc: 'Bare-metal programming with CMSIS and HAL. Covers interrupts, DMA, and peripheral drivers.',                                   diff: 'Advanced',     diffColor: '#EF4444', lessons: '36 lessons' },
+  { tag: 'VLSI',        tagColor: '#00A6FF', tagBg: 'rgba(0,166,255,0.12)',   accent: '#00A6FF', title: 'Verilog Fundamentals',      desc: 'Digital design from basic gates to FSMs and testbenches. Includes waveform simulation for every exercise.',   diff: 'Beginner',     diffColor: '#10B981', lessons: '24 lessons', icon: '🔬' },
+  { tag: 'Embedded',    tagColor: '#A855F7', tagBg: 'rgba(168,85,247,0.12)',  accent: '#A855F7', title: 'Embedded C Programming',    desc: 'Microcontroller programming, GPIO, timers, UART, and real-time systems on ARM Cortex-M.',                     diff: 'Intermediate', diffColor: '#F59E0B', lessons: '32 lessons', icon: '⚡' },
+  { tag: 'Programming', tagColor: '#10B981', tagBg: 'rgba(16,185,129,0.12)',  accent: '#10B981', title: 'Python for Engineers',      desc: 'Data analysis, automation, and signal processing with Python, NumPy, and Matplotlib.',                        diff: 'Beginner',     diffColor: '#10B981', lessons: '28 lessons', icon: '🐍' },
+  { tag: 'VLSI',        tagColor: '#00A6FF', tagBg: 'rgba(0,166,255,0.12)',   accent: '#00A6FF', title: 'SystemVerilog and UVM',     desc: 'Advanced verification methodology. Write constrained-random testbenches and functional coverage.',             diff: 'Advanced',     diffColor: '#EF4444', lessons: '40 lessons', icon: '🧪' },
+  { tag: 'Core',        tagColor: '#F59E0B', tagBg: 'rgba(245,158,11,0.12)',  accent: '#F59E0B', title: 'Digital Electronics',       desc: 'Boolean algebra, combinational and sequential circuits, flip-flops, counters, and decoders.',                  diff: 'Beginner',     diffColor: '#10B981', lessons: '20 lessons', icon: '💡' },
+  { tag: 'Embedded',    tagColor: '#A855F7', tagBg: 'rgba(168,85,247,0.12)',  accent: '#A855F7', title: 'ARM Cortex-M Programming',  desc: 'Bare-metal programming with CMSIS and HAL. Covers interrupts, DMA, and peripheral drivers.',                   diff: 'Advanced',     diffColor: '#EF4444', lessons: '36 lessons', icon: '🔧' },
 ];
 
 const PATHS = [
-  { Icon: Cpu,   accentColor: '#00A6FF', title: 'VLSI and Chip Design',    desc: 'From digital logic to RTL design, synthesis, and physical design. Covers the complete ASIC flow used in industry.',                    tags: ['Verilog', 'SystemVerilog', 'VHDL', 'UVM', 'Synthesis', 'STA'] },
-  { Icon: Zap,   accentColor: '#A855F7', title: 'Embedded Systems',        desc: 'Microcontrollers, RTOS, device drivers, and IoT protocols. Build firmware that runs on real hardware.',                                  tags: ['C', 'ARM', 'STM32', 'FreeRTOS', 'UART', 'SPI', 'I2C'] },
-  { Icon: Code2, accentColor: '#10B981', title: 'Software Engineering',    desc: 'Data structures, algorithms, system design, and competitive programming. Structured for placement preparation.',                         tags: ['C++', 'Python', 'Java', 'DSA', 'OOP', 'SQL', 'OS'] },
+  { Icon: Cpu,   accentColor: '#00A6FF', gradient: 'linear-gradient(135deg,rgba(0,166,255,0.15),rgba(0,166,255,0.03))', title: 'VLSI and Chip Design',    desc: 'From digital logic to RTL design, synthesis, and physical design. Covers the complete ASIC flow used in industry.',         tags: ['Verilog', 'SystemVerilog', 'VHDL', 'UVM', 'Synthesis', 'STA'],            count: '6 courses' },
+  { Icon: Zap,   accentColor: '#A855F7', gradient: 'linear-gradient(135deg,rgba(168,85,247,0.15),rgba(168,85,247,0.03))', title: 'Embedded Systems',        desc: 'Microcontrollers, RTOS, device drivers, and IoT protocols. Build firmware that runs on real hardware.',                     tags: ['C', 'ARM', 'STM32', 'FreeRTOS', 'UART', 'SPI', 'I2C'],                    count: '5 courses' },
+  { Icon: Code2, accentColor: '#10B981', gradient: 'linear-gradient(135deg,rgba(16,185,129,0.15),rgba(16,185,129,0.03))', title: 'Software Engineering',    desc: 'Data structures, algorithms, system design, and competitive programming. Structured for placement preparation.',            tags: ['C++', 'Python', 'Java', 'DSA', 'OOP', 'SQL', 'OS'],                       count: '7 courses' },
 ];
 
 const TESTIMONIALS = [
@@ -238,18 +238,21 @@ export default function LandingPage() {
         </div>
         <div className="lp-courses-grid">
           {COURSES.map(c => (
-            <Link key={c.title} to="/register" className="lp-course-card">
-              <div className="lp-course-thumb" style={{ background: c.bg }}>
-                <CourseIcon tag={c.tag} />
+            <Link key={c.title} to="/register" className="lp-course-card" style={{'--accent': c.accent}}>
+              <div className="lp-course-thumb-new" style={{ background: `linear-gradient(135deg, ${c.accent}22, ${c.accent}08)`, borderBottom: `1px solid ${c.accent}22` }}>
+                <span className="lp-course-emoji">{c.icon}</span>
+                <div className="lp-course-glow" style={{ background: c.accent }} />
               </div>
               <div className="lp-course-body">
-                <span className="lp-course-tag" style={{ color: c.tagColor, background: c.tagBg }}>{c.tag}</span>
+                <div className="lp-course-top-row">
+                  <span className="lp-course-tag" style={{ color: c.tagColor, background: c.tagBg }}>{c.tag}</span>
+                  <span className="lp-course-diff" style={{ color: c.diffColor, background: `${c.diffColor}15`, padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700 }}>{c.diff}</span>
+                </div>
                 <div className="lp-course-title">{c.title}</div>
                 <div className="lp-course-desc">{c.desc}</div>
                 <div className="lp-course-meta">
-                  <span className="lp-course-diff" style={{ color: c.diffColor }}>{c.diff}</span>
-                  <span className="lp-course-lessons">{c.lessons}</span>
-                  <span className="lp-course-cta">Enroll →</span>
+                  <span className="lp-course-lessons">📚 {c.lessons}</span>
+                  <span className="lp-course-cta">Enroll <ArrowRight size={11} /></span>
                 </div>
               </div>
             </Link>
@@ -267,14 +270,20 @@ export default function LandingPage() {
           </div>
           <div className="lp-path-grid">
             {PATHS.map(p => (
-              <div key={p.title} className="lp-path-card" style={{ borderColor: `${p.accentColor}18` }}>
-                <div className="lp-path-card-icon" style={{ background: `${p.accentColor}18`, border: `1.5px solid ${p.accentColor}33` }}>
-                  <p.Icon size={22} color={p.accentColor} strokeWidth={1.6} />
+              <div key={p.title} className="lp-path-card-new" style={{ background: p.gradient, borderColor: `${p.accentColor}25` }}>
+                <div className="lp-path-card-top">
+                  <div className="lp-path-card-icon" style={{ background: `${p.accentColor}18`, border: `1.5px solid ${p.accentColor}33` }}>
+                    <p.Icon size={22} color={p.accentColor} strokeWidth={1.6} />
+                  </div>
+                  <span className="lp-path-count" style={{ color: p.accentColor, background: `${p.accentColor}15` }}>{p.count}</span>
                 </div>
                 <div className="lp-path-card-title">{p.title}</div>
                 <div className="lp-path-card-desc">{p.desc}</div>
                 <div className="lp-path-card-tags">
-                  {p.tags.map(t => <span key={t} className="lp-path-tag">{t}</span>)}
+                  {p.tags.map(t => <span key={t} className="lp-path-tag" style={{ borderColor: `${p.accentColor}25`, color: `${p.accentColor}cc` }}>{t}</span>)}
+                </div>
+                <div className="lp-path-card-footer" style={{ borderTopColor: `${p.accentColor}15` }}>
+                  <Link to="/register" className="lp-path-cta" style={{ color: p.accentColor }}>Start Learning <ArrowRight size={13} /></Link>
                 </div>
               </div>
             ))}

@@ -30,7 +30,7 @@ exports.list = async (req, res) => {
     if (search !== undefined && (typeof search !== 'string' || search.length > 100)) {
       return res.status(400).json({ message: 'search must be at most 100 characters' });
     }
-    if (status !== undefined && !USER_STATUSES.has(status)) {
+    if (status !== undefined && status !== '' && !USER_STATUSES.has(status)) {
       return res.status(400).json({ message: 'status must be active, inactive, or suspended' });
     }
 

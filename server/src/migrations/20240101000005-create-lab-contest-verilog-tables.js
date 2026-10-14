@@ -57,13 +57,9 @@ module.exports = {
 
     // lab_problem_groups (junction)
     await queryInterface.createTable('lab_problem_groups', {
+      id:         { type: Sequelize.UUID, defaultValue: Sequelize.UUIDV4, primaryKey: true },
       problem_id: { type: Sequelize.UUID, allowNull: false, references: { model: 'lab_problems', key: 'id' }, onDelete: 'CASCADE' },
       group_id:   { type: Sequelize.UUID, allowNull: false, references: { model: 'lab_groups', key: 'id' }, onDelete: 'CASCADE' },
-    });
-    await queryInterface.addConstraint('lab_problem_groups', {
-      fields: ['problem_id', 'group_id'],
-      type: 'primary key',
-      name: 'lab_problem_groups_pkey',
     });
 
     // lab_submissions

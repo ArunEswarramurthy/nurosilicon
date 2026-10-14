@@ -21,6 +21,7 @@ router.delete('/admin/:id/problems/:cpId', superOnly, c.removeProblem);
 router.get('/',           anyAuth, c.studentList);
 router.get('/:id',        anyAuth, c.studentGet);
 router.post('/:id/register',         anyAuth, c.register);
+router.post('/:id/run',              anyAuth, c.run);
 router.post('/:id/submit',           anyAuth, c.submit);
 router.post('/:id/submit-objective', anyAuth, c.submitObjective);
 router.get('/:id/leaderboard',       anyAuth, c.leaderboard);

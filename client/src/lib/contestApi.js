@@ -5,6 +5,7 @@ export const contestApi = {
   list:            ()         => api.get('/contests'),
   get:             (id)       => api.get(`/contests/${id}`),
   register:        (id)       => api.post(`/contests/${id}/register`),
+  run:             (id, data) => api.post(`/contests/${id}/run`, data),
   submit:          (id, data) => api.post(`/contests/${id}/submit`, data),
   submitObjective: (id, data) => api.post(`/contests/${id}/submit-objective`, data),
   leaderboard:     (id)       => api.get(`/contests/${id}/leaderboard`),

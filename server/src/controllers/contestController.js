@@ -45,7 +45,7 @@ exports.adminList = async (req, res) => {
 // ── ADMIN: create contest ─────────────────────────────────────────────────────
 exports.adminCreate = async (req, res) => {
   try {
-    const { title, description, start_time, end_time, is_public, max_participants, rules } = req.body;
+    const { title, description, start_time, end_time, is_public, max_participants, rules, status } = req.body;
     if (!title || !start_time || !end_time)
       return res.status(400).json({ message: 'title, start_time, end_time required' });
     if (new Date(end_time) <= new Date(start_time))
@@ -55,7 +55,7 @@ exports.adminCreate = async (req, res) => {
       is_public: is_public !== false,
       max_participants: max_participants || null,
       rules: rules || null,
-      status: 'draft',
+      status: status || 'draft',
       created_by: req.user.id,
     });
     res.status(201).json({ contest });
@@ -74,11 +74,19 @@ exports.adminUpdate = async (req, res) => {
   } catch (err) { console.error(err); res.status(500).json({ message: 'Server error' }); }
 };
 
-// ── ADMIN: delete contest ─────────────────────────────────────────────────────
+// ── ADMIN: delete contest — guard against live contests with submissions ───────
 exports.adminDelete = async (req, res) => {
   try {
     const contest = await Contest.findByPk(req.params.id);
     if (!contest) return res.status(404).json({ message: 'Contest not found' });
+    const liveStatus = contestStatus(contest);
+    if (liveStatus === 'live') {
+      return res.status(400).json({ message: 'Cannot delete a live contest. End it first.' });
+    }
+    const subCount = await ContestSubmission.count({ where: { contest_id: contest.id } });
+    if (subCount > 0 && liveStatus !== 'draft') {
+      return res.status(400).json({ message: `Cannot delete: ${subCount} submission(s) exist. Archive instead.` });
+    }
     await contest.destroy();
     res.json({ message: 'Deleted' });
   } catch (err) { console.error(err); res.status(500).json({ message: 'Server error' }); }
@@ -98,7 +106,8 @@ exports.adminGet = async (req, res) => {
       order: [[{ model: ContestProblem, as: 'contest_problems' }, 'order_index', 'ASC']],
     });
     if (!contest) return res.status(404).json({ message: 'Not found' });
-    res.json({ contest });
+    const regCount = await ContestRegistration.count({ where: { contest_id: contest.id } });
+    res.json({ contest: { ...contest.toJSON(), status: contestStatus(contest), participant_count: regCount } });
   } catch (err) { console.error(err); res.status(500).json({ message: 'Server error' }); }
 };
 
@@ -203,8 +212,8 @@ exports.studentGet = async (req, res) => {
           { model: LabProblem, as: 'problem', attributes: { exclude: ['testbench', 'solution_code', 'hidden_test_cases'] } },
           {
             model: Question, as: 'question',
-            attributes: { exclude: ['explanation'] }, // hide explanation during contest
-            include: [{ model: QuestionOption, as: 'options', attributes: ['id', 'option_text', 'order_index'] }], // hide is_correct
+            attributes: { exclude: ['explanation'] },
+            include: [{ model: QuestionOption, as: 'options', attributes: ['id', 'option_text', 'order_index'] }],
           },
         ],
       }],
@@ -215,14 +224,13 @@ exports.studentGet = async (req, res) => {
     const reg = await ContestRegistration.findOne({ where: { contest_id: contest.id, user_id: req.user.id } });
     const status = contestStatus(contest);
     const json = contest.toJSON();
+    const regCount = await ContestRegistration.count({ where: { contest_id: contest.id } });
 
     if (status === 'upcoming' || !reg) {
       json.contest_problems = [];
     } else {
-      // Attach my submission per problem/question
       const mySubs = await ContestSubmission.findAll({
         where: { contest_id: contest.id, user_id: req.user.id },
-        attributes: { exclude: ['passed_cases', 'total_cases'] },
       });
       const labSubMap = Object.fromEntries(mySubs.filter(s => s.problem_id).map((s) => [s.problem_id, s]));
       const objSubMap = Object.fromEntries(mySubs.filter(s => s.question_id).map((s) => [s.question_id, s]));
@@ -234,7 +242,7 @@ exports.studentGet = async (req, res) => {
       }));
     }
 
-    res.json({ contest: { ...json, status, is_registered: !!reg } });
+    res.json({ contest: { ...json, status, is_registered: !!reg, participant_count: regCount } });
   } catch (err) { console.error(err); res.status(500).json({ message: 'Server error' }); }
 };
 
@@ -253,6 +261,33 @@ exports.register = async (req, res) => {
       defaults: { registered_at: new Date() },
     });
     res.status(created ? 201 : 200).json({ registered: true, message: created ? 'Registered!' : 'Already registered' });
+  } catch (err) { console.error(err); res.status(500).json({ message: 'Server error' }); }
+};
+
+// ── STUDENT: run code (sample tests only, no scoring) ────────────────────────
+exports.run = async (req, res) => {
+  try {
+    const { problem_id, source_code, chosen_language } = req.body;
+    if (!problem_id || !source_code) return res.status(400).json({ message: 'problem_id and source_code required' });
+    const contest = await Contest.findByPk(req.params.id);
+    if (!contest) return res.status(404).json({ message: 'Contest not found' });
+    if (contestStatus(contest) !== 'live') return res.status(400).json({ message: 'Contest is not live' });
+    const reg = await ContestRegistration.findOne({ where: { contest_id: contest.id, user_id: req.user.id } });
+    if (!reg) return res.status(403).json({ message: 'Not registered' });
+    const problem = await LabProblem.findByPk(problem_id, { attributes: { exclude: ['hidden_test_cases', 'solution_code'] } });
+    if (!problem) return res.status(404).json({ message: 'Problem not found' });
+    const lang = chosen_language || problem.language;
+    const tl = (problem.time_limit_s || 10) * 1000;
+    // Run against visible test cases only
+    const result = await runLabCode(lang, source_code, problem, tl, 'run');
+    res.json({
+      compile_error: result.compile_error || null,
+      results: safeResults(result.results),
+      passed: result.passed || 0,
+      total: result.total || 0,
+      stdout: result.stdout || '',
+      runtime_ms: result.runtime_ms || 0,
+    });
   } catch (err) { console.error(err); res.status(500).json({ message: 'Server error' }); }
 };
 
@@ -283,9 +318,12 @@ exports.submit = async (req, res) => {
         const score = total > 0 ? (passed / total) * cp.marks : 0;
         const status = result.compile_error ? 'error' : (result.timeout ? 'timeout' : (passed === total && total > 0 ? 'passed' : 'failed'));
         await labSub.update({ status, compile_error: result.compile_error || null, results: result.results || [], stdout: result.stdout || null, runtime_ms: result.runtime_ms || 0, passed_cases: passed, total_cases: total, score });
+        // Upsert ContestSubmission — keep best score, don't accumulate
         const existing = await ContestSubmission.findOne({ where: { contest_id: contest.id, problem_id, user_id: req.user.id } });
         if (existing) {
-          await existing.update({ lab_submission_id: labSub.id, language: lang, status, score: Math.max(existing.score, score), passed_cases: passed, total_cases: total, attempt_count: existing.attempt_count + 1, submitted_at: new Date() });
+          const bestScore = Math.max(existing.score, score);
+          const bestStatus = bestScore === cp.marks ? 'passed' : (status === 'passed' ? 'passed' : existing.status === 'passed' ? 'passed' : status);
+          await existing.update({ lab_submission_id: labSub.id, language: lang, status: bestStatus, score: bestScore, passed_cases: passed, total_cases: total, attempt_count: existing.attempt_count + 1, submitted_at: new Date() });
         } else {
           await ContestSubmission.create({ contest_id: contest.id, problem_id, user_id: req.user.id, problem_source: 'lab', lab_submission_id: labSub.id, language: lang, status, score, passed_cases: passed, total_cases: total });
         }
@@ -311,16 +349,16 @@ exports.submitObjective = async (req, res) => {
     if (!reg) return res.status(403).json({ message: 'Not registered' });
     const cp = await ContestProblem.findOne({ where: { contest_id: contest.id, question_id } });
     if (!cp) return res.status(404).json({ message: 'Question not in this contest' });
-    // Check if option is correct
     const option = await QuestionOption.findByPk(selected_option_id);
     if (!option || option.question_id !== question_id) return res.status(400).json({ message: 'Invalid option' });
     const is_correct = option.is_correct;
     const score = is_correct ? cp.marks : 0;
     const status = is_correct ? 'passed' : 'failed';
-    // Upsert — allow re-attempt, keep best
     const existing = await ContestSubmission.findOne({ where: { contest_id: contest.id, question_id, user_id: req.user.id } });
     if (existing) {
-      await existing.update({ selected_option_id, is_correct, score: Math.max(existing.score, score), status: existing.is_correct ? 'passed' : status, attempt_count: existing.attempt_count + 1, submitted_at: new Date() });
+      // Don't allow re-attempt if already correct
+      if (existing.is_correct) return res.json({ is_correct: true, score: existing.score, status: 'passed', already_correct: true });
+      await existing.update({ selected_option_id, is_correct, score: Math.max(existing.score, score), status, attempt_count: existing.attempt_count + 1, submitted_at: new Date() });
     } else {
       await ContestSubmission.create({ contest_id: contest.id, question_id, user_id: req.user.id, problem_source: 'objective', selected_option_id, is_correct, score, status, language: 'objective' });
     }
@@ -328,30 +366,47 @@ exports.submitObjective = async (req, res) => {
   } catch (err) { console.error(err); res.status(500).json({ message: 'Server error' }); }
 };
 
-// ── LEADERBOARD ───────────────────────────────────────────────────────────────
+// ── LEADERBOARD — fixed: best score per problem, not sum of all rows ──────────
 exports.leaderboard = async (req, res) => {
   try {
     const contest = await Contest.findByPk(req.params.id, {
       include: [{ model: ContestProblem, as: 'contest_problems', attributes: ['problem_id', 'question_id', 'marks'] }],
     });
     if (!contest) return res.status(404).json({ message: 'Not found' });
+
     const subs = await ContestSubmission.findAll({
       where: { contest_id: contest.id },
       include: [{ model: User, as: 'student', attributes: ['id', 'name', 'email', 'photo_url', 'department', 'batch'] }],
     });
+
+    // Build per-user, per-problem best score map
     const userMap = {};
     for (const s of subs) {
-      if (!userMap[s.user_id]) userMap[s.user_id] = { user: s.student, total_score: 0, solved: 0, problems: {}, last_submission: null };
+      if (!userMap[s.user_id]) {
+        userMap[s.user_id] = { user: s.student, problems: {}, last_accepted: null };
+      }
       const key = s.problem_id || s.question_id;
-      userMap[s.user_id].problems[key] = { score: s.score, status: s.status, attempts: s.attempt_count };
-      userMap[s.user_id].total_score += s.score;
-      if (s.status === 'passed') userMap[s.user_id].solved++;
-      const t = new Date(s.submitted_at);
-      if (!userMap[s.user_id].last_submission || t > userMap[s.user_id].last_submission) userMap[s.user_id].last_submission = t;
+      const prev = userMap[s.user_id].problems[key];
+      // Keep best score per problem
+      if (!prev || s.score > prev.score) {
+        userMap[s.user_id].problems[key] = { score: s.score, status: s.status, attempts: s.attempt_count };
+      }
+      if (s.status === 'passed') {
+        const t = new Date(s.submitted_at);
+        if (!userMap[s.user_id].last_accepted || t > userMap[s.user_id].last_accepted) {
+          userMap[s.user_id].last_accepted = t;
+        }
+      }
     }
-    const board = Object.values(userMap)
-      .sort((a, b) => b.total_score - a.total_score || a.last_submission - b.last_submission)
+
+    const board = Object.values(userMap).map((u) => {
+      const total_score = Object.values(u.problems).reduce((sum, p) => sum + (p.score || 0), 0);
+      const solved = Object.values(u.problems).filter(p => p.status === 'passed').length;
+      return { user: u.user, total_score, solved, problems: u.problems, last_accepted: u.last_accepted };
+    })
+      .sort((a, b) => b.total_score - a.total_score || (a.last_accepted || 0) - (b.last_accepted || 0))
       .map((u, i) => ({ rank: i + 1, ...u }));
+
     res.json({ leaderboard: board, problem_count: contest.contest_problems?.length || 0 });
   } catch (err) { console.error(err); res.status(500).json({ message: 'Server error' }); }
 };

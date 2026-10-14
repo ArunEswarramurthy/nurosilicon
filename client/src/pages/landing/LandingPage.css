@@ -4,7 +4,7 @@
 .lp *, .lp *::before, .lp *::after { box-sizing: border-box; margin: 0; padding: 0; }
 .lp {
   font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  background: #05050F;
+  background: #000000;
   color: #E2E8F0;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -540,16 +540,43 @@
   display: flex; flex-direction: column;
 }
 .lp-course-card:hover { border-color: rgba(168,85,247,0.3); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
-.lp-course-thumb {
-  height: 120px;
+.lp-course-thumb-new {
+  height: 130px;
   display: flex; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
 }
-.lp-course-thumb::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.4) 100%);
+.lp-course-emoji {
+  font-size: 48px;
+  position: relative; z-index: 1;
+  filter: drop-shadow(0 0 20px currentColor);
 }
+.lp-course-glow {
+  position: absolute;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  opacity: 0.15;
+  filter: blur(30px);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+.lp-course-top-row {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.lp-course-meta {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+.lp-course-cta {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 700;
+  color: #A855F7;
+  letter-spacing: 0.02em;
+  transition: gap 0.15s;
+}
+.lp-course-card:hover .lp-course-cta { gap: 8px; }
 .lp-course-body { padding: 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
 .lp-course-tag {
   display: inline-block;
@@ -587,15 +614,36 @@
   grid-template-columns: repeat(3,1fr);
   gap: 20px;
 }
-.lp-path-card {
+.lp-path-card-new {
   padding: 28px 24px;
-  border-radius: 18px;
-  border: 1px solid rgba(255,255,255,0.07);
-  background: rgba(255,255,255,0.02);
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.08);
   display: flex; flex-direction: column; gap: 14px;
-  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  position: relative; overflow: hidden;
 }
-.lp-path-card:hover { transform: translateY(-3px); background: rgba(255,255,255,0.04); }
+.lp-path-card-new:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+.lp-path-card-top {
+  display: flex; align-items: center;
+  justify-content: space-between;
+}
+.lp-path-count {
+  font-size: 11px; font-weight: 700;
+  padding: 4px 10px; border-radius: 20px;
+  letter-spacing: 0.04em;
+}
+.lp-path-card-footer {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.lp-path-cta {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 700;
+  text-decoration: none;
+  transition: gap 0.15s;
+}
+.lp-path-card-new:hover .lp-path-cta { gap: 10px; }
 .lp-path-card-icon {
   width: 48px; height: 48px;
   border-radius: 13px;
