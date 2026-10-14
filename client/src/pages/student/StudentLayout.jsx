@@ -12,7 +12,7 @@ const STUDENT_NAV = [
 
 export default function StudentLayout() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh', background: '#f1f4f9', width: '100%', minWidth: 0 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh', background: '#05050F', width: '100%', minWidth: 0 }}>
       <TopNavigation navItems={STUDENT_NAV} role="student" />
       <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', minWidth: 0 }}>
         <div style={{ width: '100%', minWidth: 0, padding: 'clamp(12px, 2vw, 20px) clamp(12px, 2.5vw, 28px)' }}>

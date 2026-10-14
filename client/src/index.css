@@ -9,43 +9,43 @@
   /* ── Brand palette from logo ── */
   --blue:          #00A6FF;
   --blue-hover:    #0090e0;
-  --blue-soft:     #e6f6ff;
-  --blue-mid:      #b3e4ff;
+  --blue-soft:     rgba(0,166,255,0.12);
+  --blue-mid:      rgba(0,166,255,0.25);
   --cyan:          #00E5FF;
-  --cyan-soft:     #e0fbff;
+  --cyan-soft:     rgba(0,229,255,0.10);
   --purple:        #A020F0;
   --purple-hover:  #8a18cc;
-  --purple-soft:   #f3e6fd;
-  --purple-mid:    #d9a8f8;
+  --purple-soft:   rgba(160,32,240,0.12);
+  --purple-mid:    rgba(160,32,240,0.25);
 
   /* ── Backgrounds ── */
-  --bg:            #FFFFFF;
-  --surface:       #F8FAFC;
-  --surface-2:     #F1F4F9;
-  --surface-muted: #EDF0F5;
+  --bg:            #05050F;
+  --surface:       #0A0A1A;
+  --surface-2:     #0F0F1E;
+  --surface-muted: #13131F;
 
   /* ── Borders ── */
-  --border:        #E2E8F0;
-  --border-strong: #C8D0DC;
+  --border:        #1A1A2E;
+  --border-strong: #252540;
 
   /* ── Text ── */
-  --text-primary:   #0A0A1A;
-  --text-secondary: #4A5568;
-  --text-muted:     #94A3B8;
+  --text-primary:   #E2E8F0;
+  --text-secondary: #94A3B8;
+  --text-muted:     #4A5568;
 
   /* ── Semantic ── */
   --success:        #10B981;
-  --success-soft:   #ECFDF5;
-  --success-border: #6EE7B7;
+  --success-soft:   rgba(16,185,129,0.12);
+  --success-border: rgba(16,185,129,0.25);
   --warning:        #F59E0B;
-  --warning-soft:   #FFFBEB;
-  --warning-border: #FDE68A;
+  --warning-soft:   rgba(245,158,11,0.12);
+  --warning-border: rgba(245,158,11,0.25);
   --danger:         #EF4444;
-  --danger-soft:    #FEF2F2;
-  --danger-border:  #FECACA;
+  --danger-soft:    rgba(239,68,68,0.12);
+  --danger-border:  rgba(239,68,68,0.25);
   --info:           #00A6FF;
-  --info-soft:      #e6f6ff;
-  --info-border:    #b3e4ff;
+  --info-soft:      rgba(0,166,255,0.12);
+  --info-border:    rgba(0,166,255,0.25);
 
   /* ── Shadows ── */
   --shadow-xs:      0 1px 2px rgba(0,0,0,0.04);
@@ -101,6 +101,7 @@
     min-height: 100dvh;
     display: flex;
     flex-direction: column;
+    background: var(--bg);
   }
 
   h1 { font-size: 24px; font-weight: 700; line-height: 1.25; color: var(--text-primary); letter-spacing: -0.02em; }
